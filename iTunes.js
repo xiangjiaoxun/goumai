@@ -1,10 +1,10 @@
 /*
 ***********************************************
-项目名称：iTunes-系列解锁合集 (深度优化版)
+项目名称：iTunes-本地内购通用解锁 (精简复刻版)
 更新日期：2026-07-07
 脚本作者：@xiangjiaoxun
 使用声明：⚠️仅供参考，禁转载与售卖！
-优化内容：补全了 status、pending_renewal_info 和 pst 时间戳，大幅提升解锁成功率。
+解密原理：动态识别 Bundle ID，全量劫持最新收据和续费序列
 ***********************************************
 
 [rewrite_local]
@@ -23,23 +23,24 @@ hostname = buy.itunes.apple.com, sandbox.itunes.apple.com
 
     let obj = tryParse(body);
 
-    if (obj) {
-        // 🔥 【最关键优化】必须明确指定 status 为 0，否则 App 会直接无视下方的权益数据
+    if (obj && obj.receipt) {
+        // 1. 强制注入苹果服务器验证成功状态
         obj.status = 0;
         
-        // 初始化并补全苹果标准收据骨架
-        if (!obj.receipt) obj.receipt = {};
-        if (!obj.latest_receipt_info) obj.latest_receipt_info = [];
-        if (!obj.pending_renewal_info) obj.pending_renewal_info = [];
+        // 2. 动态捕获当前 App 的真实包名
+        let bundleId = obj.receipt.bundle_id;
         
-        obj.environment = "Production"; 
-        obj.receipt.receipt_type = "Production";
-        
-        // 核心 Mock 订阅商品数据
-        // 💡 提示：如果依然无效，请抓包确认目标 App 的内购 ID，替换下方的 com.premium.yearly
-        let productId = "com.premium.yearly"; 
+        // 3. 智能构建内购商品 ID 匹配机制 (参照大老常见配置)
+        let productId = bundleId + ".vip"; 
+        if (bundleId.includes("timecut")) {
+            productId = "com.vlognow.timecut.pro_yearly"; // 精准适配 TimeCut 
+        } else if (bundleId.includes("gbox")) {
+            productId = "com.gbox.pro_yearly";
+        }
+
         let transactionId = "490001234567890";
 
+        // 4. 构造标准的永久订阅数据骨架
         let mockReceipt = {
             "quantity": "1",
             "product_id": productId, 
@@ -59,7 +60,6 @@ hostname = buy.itunes.apple.com, sandbox.itunes.apple.com
             "is_in_intro_offer_period": "false"
         };
 
-        // 🔥 【优化二】补全订阅自动续期状态，很多现代 SDK 会严格校验此数组
         let mockRenewal = {
             "expiration_intent": "0",
             "auto_renew_status": "1",
@@ -69,14 +69,34 @@ hostname = buy.itunes.apple.com, sandbox.itunes.apple.com
             "auto_renew_product_id": productId
         };
 
-        // 注入修改后的数据
-        obj.latest_receipt_info.push(mockReceipt);
-        obj.pending_renewal_info.push(mockRenewal);
-        
-        if (obj.receipt.in_app) {
-            obj.receipt.in_app.push(mockReceipt);
+        // 5. 【核心逻辑优化】遍历并改写应用现有的全部历史收据，实现全自动内购同步
+        if (obj.latest_receipt_info && obj.latest_receipt_info.length > 0) {
+            obj.latest_receipt_info.forEach(item => {
+                item.expires_date = "2099-12-31 23:59:59 Etc/GMT";
+                item.expires_date_ms = "4102444799000";
+                item.expires_date_pst = "2099-12-31 15:59:59 America/Los_Angeles";
+            });
+        } else {
+            obj.latest_receipt_info = [mockReceipt];
+        }
+
+        if (obj.receipt.in_app && obj.receipt.in_app.length > 0) {
+            obj.receipt.in_app.forEach(item => {
+                item.expires_date = "2099-12-31 23:59:59 Etc/GMT";
+                item.expires_date_ms = "4102444799000";
+                item.expires_date_pst = "2099-12-31 15:59:59 America/Los_Angeles";
+            });
         } else {
             obj.receipt.in_app = [mockReceipt];
+        }
+
+        if (obj.pending_renewal_info && obj.pending_renewal_info.length > 0) {
+            obj.pending_renewal_info.forEach(item => {
+                item.auto_renew_status = "1";
+                item.expiration_intent = "0";
+            });
+        } else {
+            obj.pending_renewal_info = [mockRenewal];
         }
 
         $done({ body: JSON.stringify(obj) });
