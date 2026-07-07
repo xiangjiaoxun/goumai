@@ -1,12 +1,11 @@
-#!name = iTunes内购验证解锁
-#!desc = 拦截并 Mock 苹果正版与沙盒环境的内购凭证，用于本地测试与开发验证。
+#!name = iTunes内购验证解锁(优化版)
+#!desc = 修复并补全了苹果内购验证的 status、续费序列等关键字段，大大提高本地测试的解锁成功率。
 #!author = xiangjiaoxun
 #!homepage = https://github.com/xiangjiaoxun/goumai
 #!icon = https://raw.githubusercontent.com/Loon0x00/Loon-Gallery/master/Icon/AppStore.png
-#!date = 2026-07-07 08:30
+#!date = 2026-07-07 08:35
 
 [Script]
-# 拦截苹果内购验证请求并交由上传的 JS 脚本处理
 http-response ^https?:\/\/((sandbox|buy)\.itunes\.apple\.com)\/verifyReceipt$ script-path=https://raw.githubusercontent.com/xiangjiaoxun/goumai/main/iTunes.js, requires-body=true, timeout=10, tag=iTunes内购解密
 
 [MITM]
