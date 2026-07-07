@@ -1,12 +1,12 @@
-#!name = iTunes内购验证解锁(优化版)
-#!desc = 修复并补全了苹果内购验证的 status、续费序列等关键字段，大大提高本地测试的解锁成功率。
+#!name = iTunes本地通用内购(专业优化版)
+#!desc = 复刻主流大老架构，支持动态识别 Bundle ID 并全量劫持苹果内购验证。支持点击“恢复购买”一键同步。
 #!author = xiangjiaoxun
 #!homepage = https://github.com/xiangjiaoxun/goumai
 #!icon = https://raw.githubusercontent.com/Loon0x00/Loon-Gallery/master/Icon/AppStore.png
-#!date = 2026-07-07 08:35
+#!date = 2026-07-07 08:40
 
 [Script]
-http-response ^https?:\/\/((sandbox|buy)\.itunes\.apple\.com)\/verifyReceipt$ script-path=https://raw.githubusercontent.com/xiangjiaoxun/goumai/main/iTunes.js, requires-body=true, timeout=10, tag=iTunes内购解密
+http-response ^https?:\/\/((sandbox|buy)\.itunes\.apple\.com)\/verifyReceipt$ script-path=https://raw.githubusercontent.com/xiangjiaoxun/goumai/main/iTunes.js, requires-body=true, timeout=10, tag=iTunes内购通用解密
 
 [MITM]
 hostname = buy.itunes.apple.com, sandbox.itunes.apple.com
