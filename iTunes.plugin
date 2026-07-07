@@ -1,12 +1,12 @@
-#!name = iTunes本地通用内购(专业优化版)
-#!desc = 复刻主流大老架构，支持动态识别 Bundle ID 并全量劫持苹果内购验证。支持点击“恢复购买”一键同步。
+#!name = iTunes本地通用内购(大老矩阵架构版)
+#!desc = 完美复刻主流大老双重劫持算法。支持已有收据全量延长至2099年，以及新账号多重商品ID矩阵伪造。配置后在App内点击“恢复购买”即可同步。
 #!author = xiangjiaoxun
 #!homepage = https://github.com/xiangjiaoxun/goumai
 #!icon = https://raw.githubusercontent.com/Loon0x00/Loon-Gallery/master/Icon/AppStore.png
-#!date = 2026-07-07 08:40
+#!date = 2026-07-07 08:45
 
 [Script]
-http-response ^https?:\/\/((sandbox|buy)\.itunes\.apple\.com)\/verifyReceipt$ script-path=https://raw.githubusercontent.com/xiangjiaoxun/goumai/main/iTunes.js, requires-body=true, timeout=10, tag=iTunes内购通用解密
+http-response ^https?:\/\/((sandbox|buy)\.itunes\.apple\.com)\/verifyReceipt$ script-path=https://raw.githubusercontent.com/xiangjiaoxun/goumai/main/iTunes.js, requires-body=true, timeout=10, tag=iTunes本地通用内购
 
 [MITM]
 hostname = buy.itunes.apple.com, sandbox.itunes.apple.com
